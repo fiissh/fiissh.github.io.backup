@@ -5,7 +5,7 @@
 # Site
 title: 肥言肥语
 subtitle: 肥肥鱼胡说八道的地方
-description: fiissh.zhao，肥肥鱼，Android SDK 开发者
+description: fiissh.zhao，肥肥鱼，Android SDK 开发
 keywords: 肥肥鱼,fiissh.zhao,fiissh,SDK,Android,Android SDK,flutter
 author: 肥肥鱼
 language: zh-CN
@@ -13,7 +13,7 @@ timezone: Asia/Shanghai
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: https://fiissh.tech
+url: https://fiissh.tech/index.html
 root: /
 permalink: :year/:title.html
 permalink_defaults:
