@@ -21,4 +21,8 @@ categories:
 * `Alibaba Java Coding Guidelines`：阿里代码规范检查
 * `Markdown`：`Markdown` 支持
 * `CodeGlance`：代码侧边栏预览
-* `Git Commit Template`：`Git` 代码提交时注释的模板插件 
+* `Git Commit Template`：`Git` 代码提交时注释的模板插件
+* `SQLScout` 和 `Database Navigator`：管理 `Android` 设备上的 `SQLite` 数据库（`SQLScout` 收费）
+* `Easy Gradle`：格式化 `build.gralde` 文件、升级 `Gradle` 插件以及停止 `Gradle` 进程
+* `Gradle View`：查看 `Gradle` 依赖
+* `Gradle Dependencies Helper`：`Gradle` 依赖自动提示
