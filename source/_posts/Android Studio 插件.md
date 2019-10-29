@@ -21,3 +21,4 @@ categories:
 * `Alibaba Java Coding Guidelines`：阿里代码规范检查
 * `Markdown`：`Markdown` 支持
 * `CodeGlance`：代码侧边栏预览
+* `Git Commit Template`：`Git` 代码提交时注释的模板插件 
