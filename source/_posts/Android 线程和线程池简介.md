@@ -1,16 +1,18 @@
 ---
-title: Android 线程池简介
-permalink: android-thread-pool
+title: Android 线程和线程池简介
+permalink: android-thread-pool-executor
 comments: true
-date: 2018-04-22 10:52:06
-updated: 2018-04-22 10:52:06
+date: 2019-04-22 10:52:06
+updated: 2019-04-22 10:52:06
 tags:
-  - 线程池
+  - ThreadPoolExecutor
 categories:
-  - Android 技术文章
+  - Android
 ---
 
-`Android` 中有多种实现多线程的方式，其中最重要的是使用 `Thread` 或 `Runnable`。但是，使用 `Thread` 或 `Runnable` 实现多线程的方式，无法有效的在任务结束之后将结果返回。为了解决这一问题，`Java` 额外提供了 `Callable` 和 `FutureTask` 两种创建线程的方式，允许我们在线程执行完成之后得到返回的结果。
+`Android` 中使用线程有多种不同的方式，其中最根本的是通过 `Thread` 或 `Runnable` 派生线程对象。
+
+但是，使用 `Thread` 或 `Runnable` 实现多线程的方式，无法有效的在任务结束之后将结果返回。为了解决这一问题，`Java` 额外提供了 `Callable` 和 `FutureTask` 两种创建线程的方式，允许我们在线程执行完成之后得到返回的结果。
 
 另外，基于 `Thread`、`Runnable`、`Callable` 和 `FutureTask` 的封装，`Android` 系统中还提供了如下多线程的实现方式：
 
@@ -18,8 +20,72 @@ categories:
 * `HandlerThread`：基于 `Thread` 和 `Handler` 的封装，接收来自 `Handler` 的消息，其内部只有一个线程在执行任务
 * `IntentService`：基于 `Service` 和 `HandlerThread` 的封装，线程的优先级更高
 
-本文将围绕线程池的使用展开讨论。
+本文将围绕线程和线程池的使用展开讨论。
 <!--more-->
+
+## Thread 和 Runable
+
+`Thread` 和 `Runable` 是最为常用也是最为根本的开启多线程的方式。
+
+`Thread` 类提供了线程开启、暂停和销毁所必需的上下文环境和方法，其本身就是一个线程对象。通常情况下我们可以通过 `new` 关键字实例化一个 `Thread` 对象并 `Override` 其 `run()` 方法的方式创建一个线程对象，并最终通过 `start()` 方法将线程运行起来:
+
+```java
+Thread thread = new Thread() {
+    @Override
+    public void run() {
+        // do somethings
+    }
+};
+thread.start();
+```
+
+这种方式在实现上较为方便和随意，对于简单的使用场景没有太大的影响。
+
+针对于类级别上的线程对象，例如类 `ThreadA extends Thread`，在一些继承结构较为复杂的类中，会受限于 `Java` 的`单一继承结构`的约束。为了解决这种问题，`Java` 提供了 `Runable` 接口作为一个更为纯粹的线程对象，而 `Thread` 则是线程的管理对象。
+
+虽然 `Thread` 类看上去不是那么纯粹----其本身既可以作为线程的管理者，也可以作为线程对象，但是从面向对象的角度来说，`Runable` 的设计则将 `OOP` 中 `interface` 的精髓体现的淋漓尽致：`interface` 定义了对象能做什么。
+
+## Callable
+
+使用 `Thread` 和 `Runable` 的方式创建线程，在线程运行结束之后无法直接将结果返回，而 `Callable` 则提供了一种返回结果的多线程机制。
+
+`Callable` 位于 `J.U.C` 包下，只有一个泛型方法 `call()` 用于返回特定的结果类型：
+
+```Java
+public interface Callable<V> {
+    /**
+     * Computes a result, or throws an exception if unable to do so.
+     *
+     * @return computed result
+     * @throws Exception if unable to compute a result
+     */
+    V call() throws Exception;
+}
+```
+
+通常情况下，`Callable` 会跟 `ExecutorService` 或者 `Future` 一起使用。
+
+## Future
+
+`Future` 提供了一系列的接口，对具体的 `Runable` 或 `Callable` 任务的执行结果进行管理（查询是否完成、取消和获取结果）。必要时可以通过 `get()` 方法以阻塞的方式获取执行结果。
+
+`Future` 位于 `J.U.C` 包下，也是一个支持泛型的接口定义：
+
+* `boolean cancel(boolean mayInterruptIfRunning);`：取消任务，如果任务取消成功则返回 `true`，否则返回 `false`。`mayInterruptIfRunning` 标识是否取消正在执行却没有执行完毕的任务
+* `boolean isCancelled();`：查询任务是否被取消，如果在任务正常完成前被取消成功，则返回 `true`
+* `boolean isDone();`：查询任务是否已经完成，如果任务完成，则返回 `true`
+* `V get();`：以阻塞的形式等待返回结果
+* `V get(long timeout, TimeUnit unit);`： 以阻塞 `timeout` 时长的形式等待返回结果，超时之后如果还没有返回结果，则直接返回 `null`
+
+## ExecutorService
+
+`ExecutorService` 位于 `J.U.C` 包下，定义了线程池的标准接口：
+
+* `shutdown`：`shutdown()` 和 `shutdownNow()` 都是关闭当前的线程池，释放所有资源
+* `submit`：向线程池中提交任务
+* `invoke`：集合任务，其中 `invokeAll` 数以同步的方式集合所有任务，当所有任务都集合完成之后就会返回，`invokeAny` 则是任何一个任务完成就返回
+* `awaitTermination`：等待一定时间直到任务全部结束，如果超时就返回 `false`
+
 
 ## ThreadPoolExecutor
 

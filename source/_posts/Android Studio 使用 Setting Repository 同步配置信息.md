@@ -5,7 +5,9 @@ comments: true
 date: 2019-11-06 10:56:51
 updated: 2019-11-06 10:56:51
 tags:
+  - Setting Repository
 categories:
+  - Android Studio
 ---
 
 `Setting Repository` 是 `IntelliJ IDEA（Android Studio）` 的一项配置托管服务，我们可以通过在 `Github` 或者其他 `Git` 服务上创建一个 `Git Repository` 的方式统一托管、同步配置信息：
