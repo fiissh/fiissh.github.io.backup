@@ -2,12 +2,10 @@
 title: OutOfMemoryError:pthread_create (1040KB stack) failed 异常分析
 permalink: oom-exception-caused-by-pthread-create-failed
 comments: true
-date: 2020-03-03 10:16:45
-updated: 2020-03-03 10:16:45
+date: 2020-03-03 11:17:57
+updated: 2020-03-03 11:17:57
 tags:
   - OutOfMemoryError
-  - OOM
-  - pthread_create
 categories:
   - Exception
 ---
@@ -63,7 +61,7 @@ at java.lang.Thread.run(Thread.java:841)
 java.lang.OutOfMemoryError: Failed to allocate a XXX byte allocation with XXX free bytes and XXXKB until OOM
 ```
 
-通过对 `pthread_create` 关键字的搜索，最终在 [thread.cc](https://cs.android.com/android/platform/superproject/+/master:art/runtime/thread.cc) 中找到了抛出该异常的位置，并且通过对 `Thread::CreateNativeThread` 函数的分析发现，在创建线程时，系统会先判断当前线程数是否超过了系统对线程数的限制，如果超过该限制则抛出 `java.lang.OutOfMemoryError: pthread_create (XXXXKB stack) failed` 异常。
+通过对 `pthread_create` 关键字的搜索，最终在 [thread.cc](https://cs.android.com/android/platform/superproject/+/master:art/runtime/thread.cc) 中找到了抛出该异常的位置，并且通过对 `Thread::CreateNativeThread` 函数的分析发现，在创建线程时，系统会先判断当前线程数是否超过了系统对线程数的限制，如果超过该限制则抛出 `java.lang.OutOfMemoryError:pthread_create (XXXXKB stack) failed` 异常。
 
 那么，问题的根源在哪里？通过对代码的分析，发现每次发起一个网络请求的时候都会创建一个 `OkHttpClient`，而每个 `OkHttpClient` 对象都会初始化一个线程池（线程的生命周期又较长），如果在短时间内发起多次请求，那么线程池会被创建多个，而线程数也会随之增加。解决的方案则是将 `OkHttpClient` 通过单例的方式对外提供。
 
